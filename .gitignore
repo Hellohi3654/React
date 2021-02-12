@@ -111,7 +111,7 @@ release/
 
 dependency-reduced-pom\.xml
 
-
+gradle/
 
 .gradle/
 

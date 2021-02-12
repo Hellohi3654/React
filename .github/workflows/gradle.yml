@@ -41,4 +41,4 @@ jobs:
       if: success()
       with:
           name: React
-          path: release\*.***\React-*.***.jar
+          path: release\6.646\React-*.***.jar

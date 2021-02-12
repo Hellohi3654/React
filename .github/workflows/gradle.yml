@@ -41,4 +41,10 @@ jobs:
       if: success()
       with:
           name: React
-          path: release\6.646\React-*.***.jar
+          path: release\
+    - name: Archive artifacts 2
+      uses: actions/upload-artifact@v2
+      if: success()
+      with:
+          name: React 2
+          path: react\release\

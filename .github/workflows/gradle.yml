@@ -36,9 +36,9 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew release
       
-    - name: Archive artifacts 3
+    - name: Archive artifacts 
       uses: actions/upload-artifact@v2
       if: success()
       with:
-          name: React 3
-          path: \
+          name: React 
+          path: release/*.***/React-*.***.jar

@@ -53,4 +53,4 @@ jobs:
       if: success()
       with:
           name: React 3
-          path: \home\runner\work\React\React\release\6.646\React-6.646.jar
+          path: \

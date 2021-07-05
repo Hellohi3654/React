@@ -34,7 +34,7 @@ jobs:
     - name: Test with Gradle
       run: ./gradlew test
     - name: Build with Gradle
-      run: ./gradlew release
+      run: ./gradlew build
       
     - name: Archive artifacts 
       uses: actions/upload-artifact@v2

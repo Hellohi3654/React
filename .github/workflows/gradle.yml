@@ -32,7 +32,7 @@ jobs:
     - name: Dep with Gradle
       run: ./gradlew dependencies
     - name: Build with Gradle
-      run: ./gradlew release
+      run: ./gradlew build
       
     - name: Archive artifacts 
       uses: actions/upload-artifact@v2

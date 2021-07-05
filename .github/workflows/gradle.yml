@@ -31,8 +31,10 @@ jobs:
       run: ./gradlew wrapper --gradle-version=6.8.2 --distribution-type=bin
     - name: Dep with Gradle
       run: ./gradlew dependencies
+    - name: Test with Gradle
+      run: ./gradlew test
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew release
       
     - name: Archive artifacts 
       uses: actions/upload-artifact@v2

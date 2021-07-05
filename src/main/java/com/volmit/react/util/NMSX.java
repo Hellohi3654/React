@@ -1,6 +1,7 @@
 package com.volmit.react.util;
 
 import com.volmit.react.api.Capability;
+import net.minecraft.network.chat.ChatComponentText;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
@@ -8,10 +9,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import primal.bukkit.nms.NMP;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 public class NMSX {
     public static NMSX bountifulAPI;
@@ -20,6 +23,8 @@ public class NMSX {
     public static Object eTitle = null;
     public static Object eSubtitle = null;
     private static boolean useOldMethods;
+    private static final UUID z = new UUID(0L, 0L);
+
 
     static {
         nmsver = Bukkit.getServer().getClass().getPackage().getName();
@@ -270,6 +275,12 @@ public class NMSX {
         }
 
         if (!VersionBukkit.tc()) {
+            return;
+        }
+
+        if(Protocol.R1_17.isActualVersion())
+        {
+            NMP.MESSAGE.action(player, message);
             return;
         }
 

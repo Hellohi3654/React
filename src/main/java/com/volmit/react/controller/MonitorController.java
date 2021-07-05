@@ -24,22 +24,22 @@ import java.io.*;
 @AsyncTick
 public class MonitorController extends Controller {
     public static int maxCooldown = 4;
-    private final TitleMonitor titleMonitor;
-    private final GMap<Player, Integer> posts;
-    private final GSet<Player> tops;
+    private TitleMonitor titleMonitor;
+    private GMap<Player, Integer> posts;
+    private GSet<Player> tops;
     private PhantomSlate sb;
     private boolean ready;
+
+    @Override
+    public void dump(JSONObject object) {
+        object.put("posting", posts.size());
+    }
 
     public MonitorController() {
         ready = false;
         posts = new GMap<Player, Integer>();
         titleMonitor = new TitleMonitor();
         tops = new GSet<>();
-    }
-
-    @Override
-    public void dump(JSONObject object) {
-        object.put("posting", posts.size());
     }
 
     public void addTop(Player p) {

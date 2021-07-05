@@ -10,26 +10,6 @@ public class Platform {
     public static boolean ENABLE = true;
     public static double PROC_CPU = CPU.getLiveProcessCPULoad();
 
-    public static String getVersion() {
-        if (!ENABLE) {
-            return "?";
-        }
-
-        return getSystem().getVersion();
-    }
-
-    public static String getName() {
-        if (!ENABLE) {
-            return "?";
-        }
-
-        return getSystem().getName();
-    }
-
-    private static OperatingSystemMXBean getSystem() {
-        return (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-    }
-
     public static class ENVIRONMENT {
         public static boolean canRunBatch() {
             return getSystem().getName().toLowerCase().contains("windows");
@@ -186,11 +166,12 @@ public class Platform {
         }
 
         public static double getCPULoad() {
-            if (!ENABLE) {
+            double CPULoad = getSystem().getSystemCpuLoad();
+            if (!ENABLE || Double.isNaN(CPULoad)) {
                 return 0;
             }
 
-            return getSystem().getSystemCpuLoad();
+            return CPULoad;
         }
 
         public static double getProcessCPULoad() {
@@ -216,5 +197,25 @@ public class Platform {
 
             return getSystem().getArch();
         }
+    }
+
+    public static String getVersion() {
+        if (!ENABLE) {
+            return "?";
+        }
+
+        return getSystem().getVersion();
+    }
+
+    public static String getName() {
+        if (!ENABLE) {
+            return "?";
+        }
+
+        return getSystem().getName();
+    }
+
+    private static OperatingSystemMXBean getSystem() {
+        return (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
     }
 }

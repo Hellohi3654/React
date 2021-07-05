@@ -1,5 +1,6 @@
 package com.volmit.react.controller;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.volmit.react.Config;
 import com.volmit.react.Gate;
 import com.volmit.react.React;
@@ -11,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -36,13 +38,13 @@ public class FastDecayController extends Controller {
     @Override
     public void start() {
         Surge.register(this);
-        leaves = new GList<Material>();
-        logs = new GList<Material>();
+        leaves = new GList<>();
+        logs = new GList<>();
         leaves.add(Material.LEAVES);
         leaves.add(Material.LEAVES_2);
         logs.add(Material.LOG_2);
         logs.add(Material.LOG);
-        queue = new GList<Block>();
+        queue = new GList<>();
     }
 
     @Override
@@ -81,6 +83,7 @@ public class FastDecayController extends Controller {
 
             for (Block i : W.blockFaces(source)) {
                 if (leaves.contains(i.getType())) {
+                    if(((Leaves) i.getState().getData()).isDecayable())
                     try {
                         boolean b = BlockFinder.follow(i, leaves, logs, 5);
 
@@ -92,12 +95,12 @@ public class FastDecayController extends Controller {
                                 }
                             };
                         }
-                    } catch (Throwable e) {
+                    } catch (Throwable ignored) {
 
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
 
         }
     }
@@ -122,17 +125,20 @@ public class FastDecayController extends Controller {
             try {
                 new GSound(MSound.STEP_GRASS.bs(), 0.8f, 0.1f + (float) (Math.random() / 2f)).play(b.getLocation());
             } catch (Throwable e) {
-
+                e.printStackTrace();
             }
         }
 
         for (int i = 0; i < 1 + (4 * Math.random()); i++) {
-            b.getWorld().playEffect(b.getLocation().clone().add(0.5, 0.5, 0.5).clone().add(Vector.getRandom().subtract(Vector.getRandom())), Effect.TILE_BREAK, b.getTypeId(), b.getData());
+            try {
+                b.getWorld().playEffect(b.getLocation().clone().add(0.5, 0.5, 0.5).clone().add(Vector.getRandom().subtract(Vector.getRandom())), Effect.TILE_BREAK, b.getTypeId(), b.getData());
+            } catch (Throwable ignored) {
+                // Doesn't work in newer versions, just ignore
+            }
         }
 
         LeavesDecayEvent de = new LeavesDecayEvent(b);
-        Bukkit.getPluginManager().callEvent(de);
-
+        Bukkit.getServer().getPluginManager().callEvent(de);
         if (React.instance.featureController.hasBinding() && Config.FAST_LEAF_NMS) {
             Location c = b.getLocation().clone().add(0.5, 0.5, 0.5);
 
@@ -141,7 +147,7 @@ public class FastDecayController extends Controller {
                     if (!Gate.safe) {
                         new GSound(MSound.DIG_GRASS.bs(), 0.4f, 1.67f + (float) (Math.random() / 3f)).play(b.getLocation());
                     }
-                } catch (Throwable e) {
+                } catch (Throwable ignored) {
 
                 }
 
@@ -166,51 +172,47 @@ public class FastDecayController extends Controller {
 
     @SuppressWarnings("deprecation")
     public GList<ItemStack> getDrops(Block b) {
-        GList<ItemStack> drops = new GList<ItemStack>();
+        GList<ItemStack> drops = new GList<>();
 
-        if (b.getType().equals(Material.LEAVES) || b.getType().equals(Material.LEAVES_2)) {
-            Leaves l = new Leaves(b.getType(), b.getData());
+        switch (XMaterial.matchXMaterial(b.getType())) {
+            case ACACIA_LEAVES:
+                if (M.r(0.05)) {
+                    drops.add(new ItemStack(XMaterial.ACACIA_SAPLING.parseMaterial(), 1));
+                }
+                break;
+            case BIRCH_LEAVES:
+                if (M.r(0.05)) {
+                    drops.add(new ItemStack(XMaterial.BIRCH_SAPLING.parseMaterial(), 1));
+                }
+                break;
+            case DARK_OAK_LEAVES:
+                if (M.r(0.005)) {
+                    drops.add(new ItemStack(Material.APPLE));
+                }
 
-            switch (l.getSpecies()) {
-                case ACACIA:
-                    if (M.r(0.05)) {
-                        drops.add(new ItemStack(Material.SAPLING, 1, (short) 0, (byte) 4));
-                    }
-                    break;
-                case BIRCH:
-                    if (M.r(0.05)) {
-                        drops.add(new ItemStack(Material.SAPLING, 1, (short) 0, (byte) 2));
-                    }
-                    break;
-                case DARK_OAK:
-                    if (M.r(0.005)) {
-                        drops.add(new ItemStack(Material.APPLE));
-                    }
+                if (M.r(0.05)) {
+                    drops.add(new ItemStack(XMaterial.DARK_OAK_SAPLING.parseMaterial(), 1));
+                }
+                break;
+            case OAK_LEAVES: // oak
+                if (M.r(0.005)) {
+                    drops.add(new ItemStack(Material.APPLE));
+                }
 
-                    if (M.r(0.05)) {
-                        drops.add(new ItemStack(Material.SAPLING, 1, (short) 0, (byte) 5));
-                    }
-                    break;
-                case GENERIC: // oak
-                    if (M.r(0.005)) {
-                        drops.add(new ItemStack(Material.APPLE));
-                    }
-
-                    if (M.r(0.05)) {
-                        drops.add(new ItemStack(Material.SAPLING, 1, (short) 0, (byte) 0));
-                    }
-                    break;
-                case JUNGLE:
-                    if (M.r(0.025)) {
-                        drops.add(new ItemStack(Material.SAPLING, 1, (short) 0, (byte) 3));
-                    }
-                    break;
-                case REDWOOD:// spruce
-                    if (M.r(0.05)) {
-                        drops.add(new ItemStack(Material.SAPLING, 1, (short) 0, (byte) 1));
-                    }
-                    break;
-            }
+                if (M.r(0.05)) {
+                    drops.add(new ItemStack(XMaterial.OAK_SAPLING.parseMaterial(), 1));
+                }
+                break;
+            case JUNGLE_LEAVES:
+                if (M.r(0.025)) {
+                    drops.add(new ItemStack(XMaterial.JUNGLE_SAPLING.parseMaterial(), 1));
+                }
+                break;
+            case SPRUCE_LEAVES:// spruce
+                if (M.r(0.05)) {
+                    drops.add(new ItemStack(XMaterial.SPRUCE_SAPLING.parseMaterial(), 1));
+                }
+                break;
         }
 
         return drops;

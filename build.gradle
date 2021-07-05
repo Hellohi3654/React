@@ -1,102 +1,95 @@
 plugins {
     id 'java'
+    id 'idea'
     id 'java-library'
+    id 'io.freefair.lombok' version '5.2.1'
     id "com.github.johnrengelman.shadow" version "6.1.0"
 }
 
 group 'com.volmit.react'
-version '6.646'
+version '6.654'
+def name = 'React'
+
+
+// ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
+// ==============================================================
+registerCustomOutputTask('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins');
+registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins');
+// ==============================================================
+
+def registerCustomOutputTask(name, path) {
+    tasks.register('build' + name, Copy) {
+        group('development')
+        outputs.upToDateWhen{false}
+        dependsOn ':shadowJar'
+        from(file('build/libs/React-' + version + '-all.jar'))
+        into(file(path))
+        rename { String fileName ->
+            fileName.replace('React-' + version + '-all.jar', "React.jar")
+        }
+    }
+}
 
 repositories {
-    mavenCentral()
     maven {
-        url = "http://repo.volmit.com/repository/volmit/"
+        allowInsecureProtocol true
+        url "http://archive.arcane.art/repository/arcane"
     }
+    mavenLocal()
 }
 
-String releasePath = project.rootDir.absolutePath + "\\release\\" + project.version + "\\React-" + project.version + ".jar"
-String devPath = "C:\\Users\\cyberpwn\\Documents\\development\\server\\plugins\\React.jar"
-
-shadowJar {
-    project.configurations.implementation.canBeResolved = true
-    project.configurations.runtime.canBeResolved = true
-    project.configurations.api.canBeResolved = false
-    project.configurations.compile.canBeResolved = true
-}
-
-task release {
-    group 'react'
-    dependsOn 'configureRelease'
-    dependsOn 'shadowJar'
-    file(jar.archiveFile.get().getAsFile().getParentFile().getParentFile().getParentFile().getParentFile().getAbsolutePath() + '/build/resources/main/plugin.yml').delete()
-}
-
-task development {
-    group 'react'
-    dependsOn 'configureDev'
-    dependsOn 'shadowJar'
-    file(jar.archiveFile.get().getAsFile().getParentFile().getParentFile().getParentFile().getAbsolutePath() + '/build/resources/main/plugin.yml').delete()
-}
-
-task configureDev {
-    group 'react-utils'
-    doFirst {
-        shadowJar {
-            zip64 true
-            archiveFileName = devPath
-        }
-    }
-}
-
-task configureRelease {
-    group 'react-utils'
-    doFirst {
-        shadowJar {
-            dependencies {
-                include dependency('org.bstats:bstats-bukkit')
-                include dependency('org.zeroturnaround:zt-zip')
-            }
-            dependencies {
-                relocate('org.bstats.bukkit', project.group + '.libraries.bstats')
-                relocate('org.zeroturnaround.zip', project.group + '.libraries.zip')
-            }
-            zip64 true
-            minimize()
-            archiveFileName = releasePath
-        }
+shadowJar
+{
+    minimize()
+    dependencies {
+        include(dependency('org.zeroturnaround:zt-zip:1.14'))
+        include(dependency('com.github.cryptomorin:XSeries:7.6.1'))
     }
 }
 
 processResources {
-    filesMatching(["**/plugin.yml"]) {
+    filesMatching('**/plugin.yml') {
         expand(
-                version: version,
-                name: project.name,
+            'name': name.toString(),
+            'version': version.toString()
         )
     }
 }
 
-dependencies {
-    implementation 'org.zeroturnaround:zt-zip:1.13'
-    implementation 'org.bstats:bstats-bukkit:1.8'
-    annotationProcessor 'org.projectlombok:lombok:1.18.16'
-    compileOnly 'org.projectlombok:lombok:1.18.16'
-    compileOnly 'org.spigotmc.full:1.12.2:1.12.2'
-    //compileOnly 'org.bukkit.craftbukkit:1.16.5:1.16.5'
-    compileOnly 'org.bukkit.craftbukkit:1.16.4:1.16.4'
-    compileOnly 'org.bukkit.craftbukkit:1.16.3:1.16.3'
-    compileOnly 'org.bukkit.craftbukkit:1.16.2:1.16.2'
-    compileOnly 'org.bukkit.craftbukkit:1.16.1:1.16.1'
-    compileOnly 'org.bukkit.craftbukkit:1.15.1:1.15.1'
-    compileOnly 'org.bukkit.craftbukkit:1.14.4:1.14.4'
-    compileOnly 'org.bukkit.craftbukkit:1.13.2:1.13.2'
-    compileOnly 'org.bukkit.craftbukkit:1.12.2:1.12.2'
-    compileOnly 'org.bukkit.craftbukkit:1.11.2:1.11.2'
-    compileOnly 'org.bukkit.craftbukkit:1.10.2:1.10.2'
-    compileOnly 'org.bukkit.craftbukkit:1.9.4:1.9.4'
-    compileOnly 'org.bukkit.craftbukkit:1.8.8:1.8.8'
-    compileOnly 'com.comphenix.protocol:ProtocolLib:4.5.1'
-    compileOnly 'io.lumine.xikage:MythicMobs:4.9.1'
-    compileOnly 'me.clip:placeholderapi:2.9.2'
-    compileOnly 'com.boydti:fawe-api:latest'
+idea {
+    module {
+        downloadJavadoc = false
+        downloadSources = false
+    }
 }
+
+dependencies {
+    implementation 'org.zeroturnaround:zt-zip:1.14'
+    implementation 'com.github.cryptomorin:XSeries:7.6.1'
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    implementation 'org.spigotmc.full:1.12.2:1.12.2'
+    implementation 'org.bukkit.craftbukkit:1.17:1.17'
+    implementation 'org.bukkit.craftbukkit:1.16.5:1.16.5'
+    implementation 'org.bukkit.craftbukkit:1.16.4:1.16.4'
+    implementation 'org.bukkit.craftbukkit:1.16.3:1.16.3'
+    implementation 'org.bukkit.craftbukkit:1.16.2:1.16.2'
+    implementation 'org.bukkit.craftbukkit:1.16.1:1.16.1'
+    implementation 'org.bukkit.craftbukkit:1.15.1:1.15.1'
+    implementation 'org.bukkit.craftbukkit:1.14.4:1.14.4'
+    implementation 'org.bukkit.craftbukkit:1.13.2:1.13.2'
+    implementation 'org.bukkit.craftbukkit:1.12.2:1.12.2'
+    implementation 'org.bukkit.craftbukkit:1.11.2:1.11.2'
+    implementation 'org.bukkit.craftbukkit:1.10.2:1.10.2'
+    implementation 'org.bukkit.craftbukkit:1.9.4:1.9.4'
+    implementation 'org.bukkit.craftbukkit:1.8.8:1.8.8'
+    implementation 'com.comphenix.protocol:ProtocolLib:4.5.1'
+    implementation 'io.lumine.xikage:MythicMobs:4.9.1'
+    implementation 'me.clip:placeholderapi:2.9.2'
+    implementation 'com.boydti:fawe-api:latest'
+}
+
+
+
+
+

@@ -1,11 +1,9 @@
 package com.volmit.react.util;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.*;
 import primal.lang.collection.GList;
 
 /**
@@ -42,9 +40,7 @@ public class SlateUtil {
     public static Objective newObjective(Scoreboard board, String name) {
         Objective o = board.registerNewObjective("slate", "dummy");
 
-        if (name.length() > 32) {
-            name = name.substring(0, 29) + "...";
-        }
+        name = trimString(name);
 
         o.setDisplayName(name);
         o.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -55,9 +51,7 @@ public class SlateUtil {
     public static Objective newHeadObjective(Scoreboard board, String name) {
         Objective o = board.registerNewObjective("slate", "dummy");
 
-        if (name.length() > 32) {
-            name = name.substring(0, 29) + "...";
-        }
+        name = trimString(name);
 
         o.setDisplayName(name);
         o.setDisplaySlot(DisplaySlot.BELOW_NAME);
@@ -75,9 +69,7 @@ public class SlateUtil {
     public static Objective newTabObjective(Scoreboard board, String name) {
         Objective o = board.registerNewObjective("slate", "dummy");
 
-        if (name.length() > 32) {
-            name = name.substring(0, 29) + "...";
-        }
+        name = trimString(name);
 
         o.setDisplayName(name);
         o.setDisplaySlot(DisplaySlot.PLAYER_LIST);
@@ -93,15 +85,7 @@ public class SlateUtil {
      * @param o     the objective
      */
     public static void setScore(String name, int value, Objective o) {
-        if (Protocol.R1_7_1.to(Protocol.R1_7_10).contains(Protocol.getProtocolVersion())) {
-            if (name.length() > 15) {
-                name = name.substring(0, 15);
-            }
-        }
-
-        if (name.length() > 40) {
-            name = name.substring(0, 37) + "...";
-        }
+        name = trimString(name);
 
         o.getScore(name).setScore(value);
     }
@@ -118,11 +102,40 @@ public class SlateUtil {
         Objective o = newObjective(slate, name);
 
         int ind = data.size();
-
         for (String i : data) {
-            setScore(i, ind, o);
+            try {
+                Team team = slate.registerNewTeam("team" + ind);
+                team.addEntry(ChatColor.values()[ind] + "");
+                i = trimString(i);
+                team.setPrefix(i);
+                setScore(ChatColor.values()[ind] + "", ind, o);
 
-            ind--;
+                ind--;
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+
+        return slate;
+    }
+
+    /**
+     * Update a slate
+     *
+     * @param slate the slate to update
+     * @param data  the list of data
+     * @return the slate
+     */
+    public static Scoreboard updateSlate(Scoreboard slate, GList<String> data) {
+        int ind = data.size();
+        for (String i : data) {
+            try {
+                i = trimString(i);
+                slate.getTeam("team" + ind).setPrefix(i);
+                ind--;
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         }
 
         return slate;
@@ -142,12 +155,32 @@ public class SlateUtil {
         int ind = data.size();
 
         for (String i : data) {
+            i = trimString(i);
             setScore(i, ind, o);
 
             ind--;
         }
 
         return slate;
+    }
+
+    /**
+     * Trim a string to work with older versions
+     *
+     * @param string The string to trim
+     * @return the trimmed string
+     */
+    public static String trimString(String string) {
+        if (Protocol.R1_7_1.to(Protocol.R1_12_2).contains(Protocol.getProtocolVersion())) {
+            if (string.length() > 15) {
+                string = string.substring(0, 15);
+            }
+        }
+
+        if (string.length() > 40) {
+            string = string.substring(0, 37) + "...";
+        }
+        return string;
     }
 
     public static String convertJSON(String noJson) {

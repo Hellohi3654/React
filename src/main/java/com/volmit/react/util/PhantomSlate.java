@@ -11,8 +11,8 @@ import primal.lang.collection.GList;
  * @author cyberpwn
  */
 public class PhantomSlate implements Slate {
-    protected GList<Player> viewers;
     private GList<String> lines;
+    protected GList<Player> viewers;
     private String name;
     private Scoreboard slate;
 
@@ -23,8 +23,8 @@ public class PhantomSlate implements Slate {
      */
     public PhantomSlate(String name) {
         this.name = name;
-        this.lines = new GList<String>();
-        this.viewers = new GList<Player>();
+        this.lines = new GList<>();
+        this.viewers = new GList<>();
 
         build();
     }
@@ -35,13 +35,13 @@ public class PhantomSlate implements Slate {
     }
 
     @Override
-    public void setLines(GList<String> lines) {
-        this.lines = lines;
+    public void set(int index, String line) {
+        lines.set(index, line);
     }
 
     @Override
-    public void set(int index, String line) {
-        lines.set(index, line);
+    public void setLines(GList<String> lines) {
+        this.lines = lines;
     }
 
     @Override
@@ -59,18 +59,22 @@ public class PhantomSlate implements Slate {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
     public void build() {
-        this.slate = SlateUtil.buildSlate(name, lines);
+        if (slate == null || slate.getTeams().isEmpty()) {
+            this.slate = SlateUtil.buildSlate(name, lines);
+        } else {
+            SlateUtil.updateSlate(slate, lines);
+        }
     }
 
     @Override

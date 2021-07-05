@@ -28,7 +28,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Wrap with Gradle
-      run: ./gradlew wrapper --gradle-version=6.8.2 --distribution-type=bin
+      run: ./gradlew wrapper --gradle-version=7.1 --distribution-type=bin
     - name: Dep with Gradle
       run: ./gradlew dependencies
     - name: Test with Gradle
